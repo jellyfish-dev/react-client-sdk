@@ -3,13 +3,13 @@ import {
   DEFAULT_VIDEO_TRACK_METADATA,
   EXAMPLE_PEER_METADATA,
   MANUAL_AUDIO_TRACK_METADATA,
-  MANUAL_SCREENSHARE_TRACK_METADATA,
+  MANUAL_SCREEN_SHARE_TRACK_METADATA,
   MANUAL_VIDEO_TRACK_METADATA,
   useCamera,
   useConnect,
   useDisconnect,
   useMicrophone,
-  useScreenshare,
+  useScreenShare,
   useSelector,
   useSetupMedia,
   useStatus,
@@ -27,14 +27,20 @@ import { DeviceControls } from "./DeviceControls";
 
 const tokenAtom = atomWithStorage("token", "");
 
-const videoAutoStreamingAtom = atomWithStorage<boolean | undefined>("videoAutoStreaming", undefined);
-const videoPreviewAtom = atomWithStorage<boolean | undefined>("videoPreview", undefined);
+const broadcastVideoOnConnectAtom = atomWithStorage<boolean | undefined>("broadcastVideoOnConnect", undefined);
+const broadcastVideoOnDeviceStartAtom = atomWithStorage<boolean | undefined>("broadcastVideoOnDeviceStart", undefined);
 
-const audioAutoStreamingAtom = atomWithStorage<boolean | undefined>("audioAutoStreaming", undefined);
-const audioPreviewAtom = atomWithStorage<boolean | undefined>("audioPreviewAtom", undefined);
+const broadcastAudioOnConnectAtom = atomWithStorage<boolean | undefined>("broadcastAudioOnConnect", undefined);
+const broadcastAudioOnDeviceStartAtom = atomWithStorage<boolean | undefined>("broadcastAudioOnDeviceStart", undefined);
 
-const screenshareAutoStreamingAtom = atomWithStorage<boolean | undefined>("screenshareAutoStreaming", undefined);
-const screensharePreviewAtom = atomWithStorage<boolean | undefined>("screensharePreviewAtom", undefined);
+const broadcastScreenShareOnConnectAtom = atomWithStorage<boolean | undefined>(
+  "broadcastScreenShareOnConnect",
+  undefined,
+);
+const broadcastScreenShareOnDeviceStartAtom = atomWithStorage<boolean | undefined>(
+  "broadcastScreenShareOnDeviceStart",
+  undefined,
+);
 
 const autostartAtom = atomWithStorage<boolean>("autostart", false, undefined, { getOnInit: true });
 
@@ -43,24 +49,27 @@ export const MainControls = () => {
 
   const connect = useConnect();
   const disconnect = useDisconnect();
+
   const local = useSelector((s) => Object.values(s.local?.tracks || {}));
 
-  const [videoAutoStreaming, setVideoAutoStreaming] = useAtom(videoAutoStreamingAtom);
-  const [videoPreview, setVideoPreview] = useAtom(videoPreviewAtom);
+  const [broadcastVideoOnConnect, setBroadcastVideoOnConnect] = useAtom(broadcastVideoOnConnectAtom);
+  const [broadcastVideoOnDeviceStart, setBroadcastVideoOnDeviceStart] = useAtom(broadcastVideoOnDeviceStartAtom);
 
-  const [audioAutoStreaming, setAudioAutoStreaming] = useAtom(audioAutoStreamingAtom);
-  const [audioPreview, setAudioPreview] = useAtom(audioPreviewAtom);
+  const [broadcastAudioOnConnect, setBroadcastAudioOnConnect] = useAtom(broadcastAudioOnConnectAtom);
+  const [broadcastAudioOnDeviceStart, setBroadcastAudioOnDeviceStart] = useAtom(broadcastAudioOnDeviceStartAtom);
 
-  const [screenshareAutoStreaming, setScreenshareAutoStreaming] = useAtom(screenshareAutoStreamingAtom);
-  const [screensharePreview, setScreensharePreview] = useAtom(screensharePreviewAtom);
+  const [broadcastScreenShareOnConnect, setBroadcastScreenShareOnConnect] = useAtom(broadcastScreenShareOnConnectAtom);
+  const [broadcastScreenShareOnDeviceStart, setBroadcastScreenShareOnDeviceStart] = useAtom(
+    broadcastScreenShareOnDeviceStartAtom,
+  );
 
   const [autostart, setAutostart] = useAtom(autostartAtom);
 
   const { init } = useSetupMedia({
     camera: {
       trackConstraints: VIDEO_TRACK_CONSTRAINTS,
-      autoStreaming: videoAutoStreaming,
-      preview: videoPreview,
+      broadcastOnConnect: broadcastVideoOnConnect,
+      broadcastOnDeviceStart: broadcastVideoOnDeviceStart,
       defaultTrackMetadata: DEFAULT_VIDEO_TRACK_METADATA,
       defaultSimulcastConfig: {
         enabled: true,
@@ -70,14 +79,18 @@ export const MainControls = () => {
     },
     microphone: {
       trackConstraints: AUDIO_TRACK_CONSTRAINTS,
-      autoStreaming: audioAutoStreaming,
-      preview: audioPreview,
+      broadcastOnConnect: broadcastAudioOnConnect,
+      broadcastOnDeviceStart: broadcastAudioOnDeviceStart,
       defaultTrackMetadata: DEFAULT_AUDIO_TRACK_METADATA,
     },
-    screenshare: {
-      autoStreaming: screenshareAutoStreaming,
-      preview: screensharePreview,
-      trackConstraints: true,
+    screenShare: {
+      broadcastOnConnect: broadcastScreenShareOnConnect,
+      broadcastOnDeviceStart: broadcastScreenShareOnDeviceStart,
+      streamConfig: {
+        videoTrackConstraints: true,
+        // todo handle audio on gui and inside client
+        audioTrackConstraints: true,
+      },
       defaultTrackMetadata: DEFAULT_VIDEO_TRACK_METADATA,
     },
     startOnMount: autostart,
@@ -86,7 +99,7 @@ export const MainControls = () => {
 
   const video = useCamera();
   const audio = useMicrophone();
-  const screenshare = useScreenshare();
+  const screenShare = useScreenShare();
   const status = useStatus();
 
   return (
@@ -114,42 +127,42 @@ export const MainControls = () => {
         </div>
         <div className="flex w-full flex-col">
           <ThreeStateRadio
-            name="Video Auto Streaming (default false)"
-            value={videoAutoStreaming}
-            set={setVideoAutoStreaming}
+            name="Broadcast video on connect (default false)"
+            value={broadcastVideoOnConnect}
+            set={setBroadcastVideoOnConnect}
             radioClass="radio-primary"
           />
 
           <ThreeStateRadio
-            name="Video Preview (default true)"
-            value={videoPreview}
-            set={setVideoPreview}
+            name="Broadcast video on device start (default false)"
+            value={broadcastVideoOnDeviceStart}
+            set={setBroadcastVideoOnDeviceStart}
             radioClass="radio-primary"
           />
 
           <ThreeStateRadio
-            name="Audio Auto Streaming (default false)"
-            value={audioAutoStreaming}
-            set={setAudioAutoStreaming}
+            name="Broadcast audio on connect (default false)"
+            value={broadcastAudioOnConnect}
+            set={setBroadcastAudioOnConnect}
             radioClass="radio-secondary"
           />
           <ThreeStateRadio
-            name="Audio Preview (default true)"
-            value={audioPreview}
-            set={setAudioPreview}
+            name="Broadcast audio on device start (default false)"
+            value={broadcastAudioOnDeviceStart}
+            set={setBroadcastAudioOnDeviceStart}
             radioClass="radio-secondary"
           />
 
           <ThreeStateRadio
-            name="Screenshare Auto Streaming (default false)"
-            value={screenshareAutoStreaming}
-            set={setScreenshareAutoStreaming}
+            name="Broadcast screen share on connect (default false)"
+            value={broadcastScreenShareOnConnect}
+            set={setBroadcastScreenShareOnConnect}
             radioClass="radio-secondary"
           />
           <ThreeStateRadio
-            name="Screenshare Preview (default true)"
-            value={screensharePreview}
-            set={setScreensharePreview}
+            name="Broadcast screen share on device start (default false)"
+            value={broadcastScreenShareOnDeviceStart}
+            set={setBroadcastScreenShareOnDeviceStart}
             radioClass="radio-secondary"
           />
         </div>
@@ -176,6 +189,23 @@ export const MainControls = () => {
           >
             Connect
           </button>
+
+          <button
+            className="btn btn-success btn-sm"
+            disabled={token === ""}
+            onClick={() => {
+              if (!token || token === "") throw Error("Token is empty");
+              disconnect();
+
+              connect({
+                peerMetadata: { name: "John Doe" }, // example metadata
+                token: token,
+              });
+            }}
+          >
+            Reconnect
+          </button>
+
           <button
             className="btn btn-error btn-sm"
             disabled={status === null}
@@ -212,10 +242,10 @@ export const MainControls = () => {
           <DeviceControls device={video} type="video" status={status} metadata={MANUAL_VIDEO_TRACK_METADATA} />
           <DeviceControls device={audio} type="audio" status={status} metadata={MANUAL_AUDIO_TRACK_METADATA} />
           <DeviceControls
-            device={screenshare}
+            device={screenShare}
             type="screenshare"
             status={status}
-            metadata={MANUAL_SCREENSHARE_TRACK_METADATA}
+            metadata={MANUAL_SCREEN_SHARE_TRACK_METADATA}
           />
         </div>
       </div>
@@ -226,7 +256,7 @@ export const MainControls = () => {
             <div className="max-w-[500px]">
               {video?.track?.kind === "video" && <VideoPlayer stream={video?.stream} />}
               {audio?.track?.kind === "audio" && <AudioVisualizer stream={audio?.stream} />}
-              {screenshare?.track?.kind === "video" && <VideoPlayer stream={screenshare?.stream} />}
+              {screenShare?.track?.kind === "video" && <VideoPlayer stream={screenShare?.stream} />}
             </div>
           </div>
           <div>

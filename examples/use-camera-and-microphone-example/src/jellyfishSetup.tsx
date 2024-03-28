@@ -1,5 +1,5 @@
-import { create } from "@jellyfish-dev/react-client-sdk";
 import { z } from "zod";
+import { create } from "@jellyfish-dev/react-client-sdk";
 
 const peerMetadataSchema = z.object({
   name: z.string(),
@@ -34,12 +34,12 @@ export const MANUAL_AUDIO_TRACK_METADATA: TrackMetadata = {
   mode: "manual",
 };
 
-export const DEFAULT_SCREENSHARE_TRACK_METADATA: TrackMetadata = {
+export const DEFAULT_SCREEN_SHARE_TRACK_METADATA: TrackMetadata = {
   type: "screenshare",
   mode: "auto",
 };
 
-export const MANUAL_SCREENSHARE_TRACK_METADATA: TrackMetadata = {
+export const MANUAL_SCREEN_SHARE_TRACK_METADATA: TrackMetadata = {
   type: "screenshare",
   mode: "manual",
 };
@@ -49,8 +49,6 @@ export const EXAMPLE_PEER_METADATA: PeerMetadata = {
 };
 
 export const {
-  useApi,
-  useTracks,
   useStatus,
   useConnect,
   useDisconnect,
@@ -58,7 +56,7 @@ export const {
   useSetupMedia,
   useCamera,
   useMicrophone,
-  useScreenshare,
+  useScreenShare,
   useSelector,
 } = create<PeerMetadata, TrackMetadata>({
   peerMetadataParser: (obj) => peerMetadataSchema.parse(obj),

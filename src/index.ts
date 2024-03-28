@@ -1,4 +1,5 @@
-export { create, CreateJellyfishClient, UseConnect } from "./create";
+export { create, CreateJellyfishClient, UseConnect} from "./create";
+export { Client, ClientEvents, ClientApiState } from "./Client";
 
 export {
   PeerState,
@@ -11,29 +12,18 @@ export {
   Selector,
   State,
   SetStore,
-  Connectivity,
 } from "./state.types";
-
-export { Api } from "./api";
-
-export { useUserMedia } from "./useUserMedia";
-
-export { useSetupMedia } from "./useMedia/index";
 
 export {
   UseCameraAndMicrophoneResult,
   UseCameraResult,
-  UseScreenshareResult,
+  UseScreenShareResult,
   UseMicrophoneResult,
   UseSetupMediaResult,
   UseSetupMediaConfig,
-} from "./useMedia/types";
+} from "./types";
 
-export {
-  AUDIO_TRACK_CONSTRAINTS,
-  VIDEO_TRACK_CONSTRAINTS,
-  SCREEN_SHARING_MEDIA_CONSTRAINTS,
-} from "./useUserMedia/constraints";
+export { AUDIO_TRACK_CONSTRAINTS, VIDEO_TRACK_CONSTRAINTS, SCREEN_SHARING_MEDIA_CONSTRAINTS } from "./constraints";
 
 export type {
   Peer,
